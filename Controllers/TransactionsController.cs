@@ -53,6 +53,7 @@ namespace PäronWebbApp.Controllers
             return View();
         }
 
+        
         // POST: Transactions/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -63,15 +64,33 @@ namespace PäronWebbApp.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(transaction);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //Checks if IB is found on Warehouse && Product and adding Quantity to the balance
+                InventoryBalance inventoryBalance = await _context.inventoryBalances
+                .FirstOrDefaultAsync(ib => ib.WarehouseId == transaction.WarehouseId && ib.ProductId == transaction.ProductId);
+                if (inventoryBalance != null)
+                {
+                    // Update the TotalAmount
+                    inventoryBalance.TotalAmount += transaction.Quantity;
+
+
+                    _context.Add(transaction);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "InventoryBalance not found for the given WarehouseId and ProductId.");
+                    ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", transaction.WarehouseId);
+                    ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", transaction.ProductId);
+                    return View(transaction);
+                }
             }
             ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", transaction.WarehouseId);
             ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", transaction.ProductId);
             return View(transaction);
         }
 
+        
         // GET: Transactions/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {

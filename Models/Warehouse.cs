@@ -7,14 +7,14 @@ namespace PäronWebbApp.Models
     public class Warehouse
     {
         
-
         public int WarehouseId { get; set; }
         [Required]
+        [Display(Name = "Stad")]
         public string City { get; set; }
 
-        public Warehouse(int warehouseId, string city)
+        public Warehouse(string city)
         {
-            WarehouseId = warehouseId;
+            
             City = city;
         }
     }

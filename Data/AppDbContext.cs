@@ -12,7 +12,9 @@ namespace PäronWebbApp.Data
         public DbSet<Product> Products { get; set; } = default!;
         public DbSet<Warehouse> Warehouses { get; set; } = default!;
         public DbSet<Transaction> Transactions { get; set; } = default!;
-      
+        public DbSet<InventoryBalance> inventoryBalances { get; set; } = default!;
+
+
 
     }
 }

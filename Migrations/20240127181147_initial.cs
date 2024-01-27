@@ -37,6 +37,33 @@ namespace PäronWebbApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "inventoryBalances",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TotalAmount = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    WarehouseId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_inventoryBalances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_inventoryBalances_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_inventoryBalances_Warehouses_WarehouseId",
+                        column: x => x.WarehouseId,
+                        principalTable: "Warehouses",
+                        principalColumn: "WarehouseId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -44,7 +71,6 @@ namespace PäronWebbApp.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     TransactionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    //ProductId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     WarehouseId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -66,6 +92,16 @@ namespace PäronWebbApp.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_inventoryBalances_ProductId",
+                table: "inventoryBalances",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_inventoryBalances_WarehouseId",
+                table: "inventoryBalances",
+                column: "WarehouseId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_ProductId",
                 table: "Transactions",
                 column: "ProductId");
@@ -78,6 +114,9 @@ namespace PäronWebbApp.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "inventoryBalances");
+
             migrationBuilder.DropTable(
                 name: "Transactions");
 
