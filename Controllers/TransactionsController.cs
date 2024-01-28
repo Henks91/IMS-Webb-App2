@@ -19,14 +19,15 @@ namespace PäronWebbApp.Controllers
             _context = context;
         }
 
-        // GET: Transactions
+        
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Transactions.Include(t => t.Warehouse);
+            var appDbContext = _context.Transactions.Include(t => t.Warehouse).Include(t => t.Product);
+
             return View(await appDbContext.ToListAsync());
         }
 
-        // GET: Transactions/Details/5
+        
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Transactions == null)
@@ -36,6 +37,7 @@ namespace PäronWebbApp.Controllers
 
             var transaction = await _context.Transactions
                 .Include(t => t.Warehouse)
+                .Include(i => i.Product)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (transaction == null)
             {
@@ -45,7 +47,7 @@ namespace PäronWebbApp.Controllers
             return View(transaction);
         }
 
-        // GET: Transactions/Create
+        
         public IActionResult Create()
         {
             ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City");
@@ -54,23 +56,21 @@ namespace PäronWebbApp.Controllers
         }
 
         
-        // POST: Transactions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
+        // Create transaction and update existing inventoryBlance / if not existing error message
         public async Task<IActionResult> Create([Bind("Id,Quantity,TransactionDate,ProductId,WarehouseId")] Transaction transaction)
         {
 
             if (ModelState.IsValid)
             {
-                //Checks if IB is found on Warehouse && Product and adding Quantity to the balance
-                InventoryBalance inventoryBalance = await _context.inventoryBalances
-                .FirstOrDefaultAsync(ib => ib.WarehouseId == transaction.WarehouseId && ib.ProductId == transaction.ProductId);
-                if (inventoryBalance != null)
+                
+                InventoryBalance updateInventoryBalance = await FindInventoryBalanceAsync(transaction);
+                if (updateInventoryBalance != null)
                 {
                     // Update the TotalAmount
-                    inventoryBalance.TotalAmount += transaction.Quantity;
+                    updateInventoryBalance.TotalAmount += transaction.Quantity;
 
 
                     _context.Add(transaction);
@@ -79,19 +79,18 @@ namespace PäronWebbApp.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "InventoryBalance not found for the given WarehouseId and ProductId.");
-                    ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", transaction.WarehouseId);
-                    ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", transaction.ProductId);
+                    HandleInventoryBalanceNotFound(transaction);
                     return View(transaction);
                 }
             }
             ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", transaction.WarehouseId);
             ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", transaction.ProductId);
             return View(transaction);
+
         }
 
         
-        // GET: Transactions/Edit/5
+        
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Transactions == null)
@@ -105,17 +104,16 @@ namespace PäronWebbApp.Controllers
                 return NotFound();
             }
             ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", transaction.WarehouseId);
+            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", transaction.ProductId);
             return View(transaction);
         }
 
-        // POST: Transactions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Quantity,TransactionDate,ProductId,WarehouseId")] Transaction transaction)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Quantity,TransactionDate,ProductId,WarehouseId")] Transaction updatedTransaction)
         {
-            if (id != transaction.Id)
+            if (id != updatedTransaction.Id)
             {
                 return NotFound();
             }
@@ -124,12 +122,33 @@ namespace PäronWebbApp.Controllers
             {
                 try
                 {
-                    _context.Update(transaction);
+                    var existingTransaction = await _context.Transactions.FindAsync(id);
+
+                    if (existingTransaction == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Check if Quantity is changed // if changed, change balance
+                    if (existingTransaction.Quantity != updatedTransaction.Quantity)
+                    {
+                        int quantityChange = updatedTransaction.Quantity - existingTransaction.Quantity;
+                        //await UpdateBalanceAsync(transaction, quantityChange);
+                        // Update the balance based on the change in Quantity
+                        await UpdateInventoryBalanceAsync(existingTransaction, quantityChange);
+                    }
+                    existingTransaction.Quantity = updatedTransaction.Quantity;
+                    existingTransaction.TransactionDate = updatedTransaction.TransactionDate;
+                    existingTransaction.ProductId = updatedTransaction.ProductId;
+                    existingTransaction.WarehouseId = updatedTransaction.WarehouseId;
+                    //await UpdateBalanceAsync(editedTransaction);
+                    //_context.Update(transaction);
                     await _context.SaveChangesAsync();
+                    
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TransactionExists(transaction.Id))
+                    if (!TransactionExists(updatedTransaction.Id))
                     {
                         return NotFound();
                     }
@@ -140,8 +159,9 @@ namespace PäronWebbApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", transaction.WarehouseId);
-            return View(transaction);
+            ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", updatedTransaction.WarehouseId);
+            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", updatedTransaction.ProductId);
+            return View(updatedTransaction);
         }
 
         // GET: Transactions/Delete/5
@@ -154,6 +174,7 @@ namespace PäronWebbApp.Controllers
 
             var transaction = await _context.Transactions
                 .Include(t => t.Warehouse)
+                .Include(t => t.Product)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (transaction == null)
             {
@@ -175,7 +196,9 @@ namespace PäronWebbApp.Controllers
             var transaction = await _context.Transactions.FindAsync(id);
             if (transaction != null)
             {
+                await UpdateInventoryBalanceOnDeleteAsync(transaction);
                 _context.Transactions.Remove(transaction);
+                
             }
             
             await _context.SaveChangesAsync();
@@ -186,5 +209,72 @@ namespace PäronWebbApp.Controllers
         {
           return (_context.Transactions?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+        public async Task UpdateInventoryBalanceAsync(Transaction transaction, int quantityChange)
+        {
+            try
+            {
+                InventoryBalance updateInventoryBalance = await FindInventoryBalanceAsync(transaction);
+
+                if (updateInventoryBalance != null)
+                {
+                    // Update the TotalAmount
+                    updateInventoryBalance.TotalAmount += quantityChange;
+
+                    //_context.Update(updateInventoryBalance);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    HandleInventoryBalanceNotFound(transaction);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception appropriately
+                ModelState.AddModelError(string.Empty, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        public async Task UpdateInventoryBalanceOnDeleteAsync(Transaction transaction)
+        {
+            try
+            {
+                InventoryBalance updateInventoryBalance = await FindInventoryBalanceAsync(transaction);
+
+                if (updateInventoryBalance != null)
+                {
+                    // Update the TotalAmount
+                    updateInventoryBalance.TotalAmount -= transaction.Quantity;
+
+                    //_context.Update(updateInventoryBalance);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    HandleInventoryBalanceNotFound(transaction);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception appropriately
+                ModelState.AddModelError(string.Empty, $"An error occurred: {ex.Message}");
+            }
+        }
+        //Error message if InventoryBalance not found
+        private void HandleInventoryBalanceNotFound(Transaction transaction)
+        {
+            ModelState.AddModelError(string.Empty, "Existing inventoryBalance not found for the given WarehouseId and ProductId. Create new balance section first");
+
+            // Optionally, you can provide additional information or populate ViewData
+            ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", transaction.WarehouseId);
+            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", transaction.ProductId);
+        }
+        //Checks if IB is found on Warehouse && Product and adding Quantity to the balance
+        public async Task<InventoryBalance> FindInventoryBalanceAsync(Transaction transaction)
+        {
+            return await _context.inventoryBalances
+                .FirstOrDefaultAsync(ib => ib.WarehouseId == transaction.WarehouseId && ib.ProductId == transaction.ProductId);
+        }
+
     }
 }

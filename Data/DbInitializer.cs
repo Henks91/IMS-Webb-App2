@@ -19,6 +19,8 @@ namespace PäronWebbApp.Data
             context.Warehouses.Add(new Warehouse("Cupertino"));
             context.Warehouses.Add(new Warehouse("Norrköping"));
             context.Warehouses.Add(new Warehouse("Frankurt"));
+
+            
             context.SaveChanges();
 
         }

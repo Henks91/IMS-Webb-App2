@@ -1,8 +1,45 @@
-﻿@{
+﻿@model IEnumerable<PäronWebbApp.Models.InventoryBalance>
+
+@{
     ViewData["Title"] = "Startsida";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Välkommen Päron Inventory Flow</h1>
-    <p>Behöver du <a href="https://www.exsitec.se/support">support? </a>Klicka på länken för hjälp.</p>
+    <h1 class="display-4">Välkommen till Päron Inventory Flow</h1>
 </div>
+<br />
+<br />
+<h1>Lagersaldo</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Warehouse)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Product)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalAmount)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Warehouse.City)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Product.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalAmount)
+            </tr>
+        }
+    </tbody>
+</table>
+

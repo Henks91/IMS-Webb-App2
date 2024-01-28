@@ -12,12 +12,14 @@ namespace PäronWebbApp.Models
         [Display(Name = "Datum")]
         public DateTimeOffset TransactionDate { get; set; }
 
+        [Display(Name = "Produkt ID")]
         public string ProductId { get; set; }
-        public Product Product { get; set; }
+        [Display(Name = "Produkt")]
+        public Product? Product { get; set; }
 
         public int WarehouseId { get; set; }
         [Display(Name = "Stad")]
-        public Warehouse Warehouse { get; set; }
+        public Warehouse? Warehouse { get; set; }
 
 
     }
