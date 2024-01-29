@@ -69,9 +69,9 @@ namespace PäronWebbApp.Controllers
                 InventoryBalance updateInventoryBalance = await FindInventoryBalanceAsync(transaction);
                 if (updateInventoryBalance != null)
                 {
-                    // Update the TotalAmount
+                    // Update the TotalAmount and TransactionDate
                     updateInventoryBalance.TotalAmount += transaction.Quantity;
-
+                    
                     transaction.TransactionDate = DateTime.UtcNow;
                     _context.Add(transaction);
                     await _context.SaveChangesAsync();
@@ -111,6 +111,8 @@ namespace PäronWebbApp.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
+
+        //Edit Transaction and check if Quantity is changed // if changed, change InvetoryBalance
         public async Task<IActionResult> Edit(int id, [Bind("Id,Quantity,ProductId,WarehouseId")] Transaction updatedTransaction)
         {
             if (id != updatedTransaction.Id)
@@ -162,7 +164,7 @@ namespace PäronWebbApp.Controllers
             return View(updatedTransaction);
         }
 
-        // GET: Transactions/Delete/5
+        
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Transactions == null)
@@ -182,7 +184,7 @@ namespace PäronWebbApp.Controllers
             return View(transaction);
         }
 
-        // POST: Transactions/Delete/5
+        
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -203,6 +205,9 @@ namespace PäronWebbApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // This private method checks whether a transaction with a specific Id exists in the database.
+        // It takes an 'id' parameter representing the Id of the transaction to be checked.
+        // Returns true if the transaction exists, otherwise returns false.
         private bool TransactionExists(int id)
         {
           return (_context.Transactions?.Any(e => e.Id == id)).GetValueOrDefault();

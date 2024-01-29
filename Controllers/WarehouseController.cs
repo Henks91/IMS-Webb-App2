@@ -27,7 +27,7 @@ namespace PäronWebbApp.Controllers
                           Problem("Entity set 'AppDbContext.Warehouses'  is null.");
         }
 
-        // GET: Warehouse/Details/5
+        // GET: Warehouse/Details
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Warehouses == null)
@@ -45,15 +45,13 @@ namespace PäronWebbApp.Controllers
             return View(warehouse);
         }
 
-        // GET: Warehouse/Create
+        
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Warehouse/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("WarehouseId,City")] Warehouse warehouse)
@@ -67,7 +65,7 @@ namespace PäronWebbApp.Controllers
             return View(warehouse);
         }
 
-        // GET: Warehouse/Edit/5
+        
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Warehouses == null)
@@ -83,9 +81,7 @@ namespace PäronWebbApp.Controllers
             return View(warehouse);
         }
 
-        // POST: Warehouse/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("WarehouseId,City")] Warehouse warehouse)
@@ -118,7 +114,7 @@ namespace PäronWebbApp.Controllers
             return View(warehouse);
         }
 
-        // GET: Warehouse/Delete/5
+        
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Warehouses == null)
@@ -136,7 +132,7 @@ namespace PäronWebbApp.Controllers
             return View(warehouse);
         }
 
-        // POST: Warehouse/Delete/5
+        // POST: Warehouse/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

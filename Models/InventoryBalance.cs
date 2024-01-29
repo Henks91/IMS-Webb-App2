@@ -8,10 +8,12 @@ namespace PäronWebbApp.Models
 
         public int Id { get; set; }
         public string ProductId { get; set; }
+
         [Display(Name = "Produkt")]
         public Product? Product { get; set; }
 
         public int WarehouseId { get; set; }
+
         [Display(Name = "Stad")]
         public Warehouse? Warehouse { get; set; }
 

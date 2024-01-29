@@ -57,6 +57,8 @@ namespace PäronWebbApp.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
+
+        // This action method handles the creation of new InventoryBalance records.
         public async Task<IActionResult> Create([Bind("Id,TotalAmount,ProductId,WarehouseId")] InventoryBalance inventoryBalance)
         {
             // Check if an existing InventoryBalance object with the same combination of ProductId and WarehouseId already exists
@@ -66,12 +68,13 @@ namespace PäronWebbApp.Controllers
 
             if (inventoryExists)
             {
+                // If an existing InventoryBalance is found, add a model error and return to the create view.
                 ModelState.AddModelError(string.Empty, "An InventoryBalance with the same ProductId and WarehouseId already exists.");
                 ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", inventoryBalance.ProductId);
                 ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", inventoryBalance.WarehouseId);
                 return View(inventoryBalance);
             }
-            //If it's a new balance add and save it to the DB
+            //If it's a new balance add and save it to the DataBase
             if (ModelState.IsValid)
             {
                 _context.Add(inventoryBalance);
@@ -136,7 +139,7 @@ namespace PäronWebbApp.Controllers
             return View(inventoryBalance);
         }
 
-        // GET: InventoryBalance/Delete/5
+        
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.inventoryBalances == null)
@@ -156,7 +159,7 @@ namespace PäronWebbApp.Controllers
             return View(inventoryBalance);
         }
 
-        // POST: InventoryBalance/Delete/5
+        
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

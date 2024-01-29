@@ -27,7 +27,8 @@ namespace PäronWebbApp.Controllers
                           Problem("Entity set 'AppDbContext.Products'  is null.");
         }
 
-        // GET: Product/Details/5
+        // This action method handles the retrieval and display of details for a specific product.
+        // It takes a parameter 'id' representing the ProductId of the product to be displayed
         public async Task<IActionResult> Details(string id)
         {
             if (id == null || _context.Products == null)
@@ -45,15 +46,12 @@ namespace PäronWebbApp.Controllers
             return View(product);
         }
 
-        // GET: Product/Create
+        
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Product/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductId,ProductName,Price,Created")] Product product)
@@ -67,7 +65,7 @@ namespace PäronWebbApp.Controllers
             return View(product);
         }
 
-        // GET: Product/Edit/5
+        
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null || _context.Products == null)
@@ -83,9 +81,7 @@ namespace PäronWebbApp.Controllers
             return View(product);
         }
 
-        // POST: Product/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("ProductId,ProductName,Price,Created")] Product product)
@@ -118,7 +114,7 @@ namespace PäronWebbApp.Controllers
             return View(product);
         }
 
-        // GET: Product/Delete/5
+        
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null || _context.Products == null)
@@ -136,7 +132,7 @@ namespace PäronWebbApp.Controllers
             return View(product);
         }
 
-        // POST: Product/Delete/5
+        
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)

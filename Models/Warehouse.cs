@@ -8,14 +8,15 @@ namespace PäronWebbApp.Models
     {
         
         public int WarehouseId { get; set; }
+
         [Required]
         [Display(Name = "Stad")]
         public string City { get; set; }
 
-        public Warehouse(string city)
-        {
+        //public Warehouse(string city)
+        //{
             
-            City = city;
-        }
+        //    City = city;
+        //}
     }
 }
