@@ -1,13 +1,13 @@
 ﻿@model PäronWebbApp.Models.Product
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detaljer";
 }
 
-<h1>Details</h1>
+<h1>Detaljer</h1>
 
 <div>
-    <h4>Product</h4>
+    <h4>Produkt</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -15,6 +15,12 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.ProductName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProductId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProductId)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Price)

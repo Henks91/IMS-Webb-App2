@@ -54,13 +54,24 @@ namespace PäronWebbApp.Controllers
             return View();
         }
 
-        // POST: InventoryBalance/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,TotalAmount,ProductId,WarehouseId")] InventoryBalance inventoryBalance)
         {
+            // Check if an existing InventoryBalance object with the same combination of ProductId and WarehouseId already exists
+            bool inventoryExists = _context.inventoryBalances.Any(
+                i => i.ProductId == inventoryBalance.ProductId &&
+                     i.WarehouseId == inventoryBalance.WarehouseId); 
+
+            if (inventoryExists)
+            {
+                ModelState.AddModelError(string.Empty, "An InventoryBalance with the same ProductId and WarehouseId already exists.");
+                ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", inventoryBalance.ProductId);
+                ViewData["WarehouseId"] = new SelectList(_context.Warehouses, "WarehouseId", "City", inventoryBalance.WarehouseId);
+                return View(inventoryBalance);
+            }
+            //If it's a new balance add and save it to the DB
             if (ModelState.IsValid)
             {
                 _context.Add(inventoryBalance);
@@ -72,7 +83,7 @@ namespace PäronWebbApp.Controllers
             return View(inventoryBalance);
         }
 
-        // GET: InventoryBalance/Edit/5
+        
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.inventoryBalances == null)
@@ -90,9 +101,7 @@ namespace PäronWebbApp.Controllers
             return View(inventoryBalance);
         }
 
-        // POST: InventoryBalance/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,TotalAmount,ProductId,WarehouseId")] InventoryBalance inventoryBalance)

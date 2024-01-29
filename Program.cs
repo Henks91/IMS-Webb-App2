@@ -28,7 +28,7 @@ namespace PäronWebbApp
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<AppDbContext>();
-                DbInitializer.Seed(context);
+                //DbInitializer.Seed(context);
             }
 
             app.UseHttpsRedirection();

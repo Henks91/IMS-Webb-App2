@@ -60,7 +60,7 @@ namespace PäronWebbApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         // Create transaction and update existing inventoryBlance / if not existing error message
-        public async Task<IActionResult> Create([Bind("Id,Quantity,TransactionDate,ProductId,WarehouseId")] Transaction transaction)
+        public async Task<IActionResult> Create([Bind("Id,Quantity,ProductId,WarehouseId")] Transaction transaction)
         {
 
             if (ModelState.IsValid)
@@ -72,7 +72,7 @@ namespace PäronWebbApp.Controllers
                     // Update the TotalAmount
                     updateInventoryBalance.TotalAmount += transaction.Quantity;
 
-
+                    transaction.TransactionDate = DateTime.UtcNow;
                     _context.Add(transaction);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -111,7 +111,7 @@ namespace PäronWebbApp.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Quantity,TransactionDate,ProductId,WarehouseId")] Transaction updatedTransaction)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Quantity,ProductId,WarehouseId")] Transaction updatedTransaction)
         {
             if (id != updatedTransaction.Id)
             {
@@ -133,16 +133,14 @@ namespace PäronWebbApp.Controllers
                     if (existingTransaction.Quantity != updatedTransaction.Quantity)
                     {
                         int quantityChange = updatedTransaction.Quantity - existingTransaction.Quantity;
-                        //await UpdateBalanceAsync(transaction, quantityChange);
-                        // Update the balance based on the change in Quantity
+                        
                         await UpdateInventoryBalanceAsync(existingTransaction, quantityChange);
                     }
                     existingTransaction.Quantity = updatedTransaction.Quantity;
-                    existingTransaction.TransactionDate = updatedTransaction.TransactionDate;
+                    existingTransaction.TransactionDate = DateTime.UtcNow;
                     existingTransaction.ProductId = updatedTransaction.ProductId;
                     existingTransaction.WarehouseId = updatedTransaction.WarehouseId;
-                    //await UpdateBalanceAsync(editedTransaction);
-                    //_context.Update(transaction);
+                    
                     await _context.SaveChangesAsync();
                     
                 }

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<PäronWebbApp.Models.InventoryBalance>
 
 @{
-    ViewData["Title"] = "Startsida";
+    ViewData["Title"] = "Hem";
 }
 
 <div class="text-center">
@@ -9,19 +9,25 @@
 </div>
 <br />
 <br />
-<h1>Lagersaldo</h1>
+<h1>Aktivt lagersaldo</h1>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Warehouse)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["WarehouseSortParam"]">
+                    @Html.DisplayNameFor(model => model.Warehouse.City)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Product)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["ProductSortParam"]">
+                    @Html.DisplayNameFor(model => model.Product.ProductName)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TotalAmount)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["TotalAmountSortParam"]">
+                    @Html.DisplayNameFor(model => model.TotalAmount)
+                </a>
             </th>
             <th></th>
         </tr>

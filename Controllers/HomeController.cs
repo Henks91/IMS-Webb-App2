@@ -49,10 +49,73 @@ namespace PäronWebbApp.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-        public async Task<IActionResult> Index()
+        public IActionResult Index(string sortOrder)
         {
-            var appDbContext = _context.inventoryBalances.Include(i => i.Product).Include(i => i.Warehouse);
-            return View(await appDbContext.ToListAsync());
+            ViewData["WarehouseSortParam"] = string.IsNullOrEmpty(sortOrder) ? "warehouse_desc" : "";
+            ViewData["ProductSortParam"] = sortOrder == "product" ? "product_desc" : "product";
+            ViewData["TotalAmountSortParam"] = sortOrder == "totalAmount" ? "totalAmount_desc" : "totalAmount";
+
+            var inventoryBalances = _context.inventoryBalances
+                                    .Include(i => i.Warehouse)
+                                    .Include(i => i.Product)
+                                    .AsQueryable();
+
+            switch (sortOrder)
+            {
+                case "warehouse_desc":
+                    inventoryBalances = inventoryBalances.OrderByDescending(i => i.Warehouse.City);
+                    break;
+                case "product":
+                    inventoryBalances = inventoryBalances.OrderBy(i => i.Product.ProductName);
+                    break;
+                case "product_desc":
+                    inventoryBalances = inventoryBalances.OrderByDescending(i => i.Product.ProductName);
+                    break;
+                case "totalAmount":
+                    inventoryBalances = inventoryBalances.OrderBy(i => i.TotalAmount);
+                    break;
+                case "totalAmount_desc":
+                    inventoryBalances = inventoryBalances.OrderByDescending(i => i.TotalAmount);
+                    break;
+                default:
+                    inventoryBalances = inventoryBalances.OrderBy(i => i.Warehouse.City);
+                    break;
+            }
+
+            return View(inventoryBalances.ToList());
         }
+        //public IActionResult Index(string sortOrder)
+        //{
+        //    ViewData["WarehouseSortParam"] = string.IsNullOrEmpty(sortOrder) ? "warehouse_desc" : "";
+        //    ViewData["ProductSortParam"] = sortOrder == "product" ? "product_desc" : "product";
+        //    ViewData["TotalAmountSortParam"] = sortOrder == "totalAmount" ? "totalAmount_desc" : "totalAmount";
+
+        //    var inventoryBalances = _context.inventoryBalances.AsQueryable();
+
+        //    switch (sortOrder)
+        //    {
+        //        case "warehouse_desc":
+        //            inventoryBalances = inventoryBalances.OrderByDescending(i => i.Warehouse.City);
+        //            break;
+        //        case "product":
+        //            inventoryBalances = inventoryBalances.OrderBy(i => i.Product.ProductName);
+        //            break;
+        //        case "product_desc":
+        //            inventoryBalances = inventoryBalances.OrderByDescending(i => i.Product.ProductName);
+        //            break;
+        //        case "totalAmount":
+        //            inventoryBalances = inventoryBalances.OrderBy(i => i.TotalAmount);
+        //            break;
+        //        case "totalAmount_desc":
+        //            inventoryBalances = inventoryBalances.OrderByDescending(i => i.TotalAmount);
+        //            break;
+        //        default:
+        //            inventoryBalances = inventoryBalances.OrderBy(i => i.Warehouse.City);
+        //            break;
+        //    }
+
+        //    return View(inventoryBalances.ToList());
+        //}
+
     }
 }
