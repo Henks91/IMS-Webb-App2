@@ -5,11 +5,11 @@
 }
 
 <h1>Produkter</h1>
-
+<hr class="my-4">
 <p>
     <a asp-action="Create">Lägg till ny produkt</a>
 </p>
-<table class="table">
+<table class="table table-striped">
     <thead>
         <tr>
             <th>
@@ -37,9 +37,9 @@
                 @item.Created.Date.ToShortDateString()
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.ProductId">Redigera</a> |
+                <a asp-action="Details" asp-route-id="@item.ProductId">Detaljer</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ProductId">Ta bort</a>
             </td>
         </tr>
 }

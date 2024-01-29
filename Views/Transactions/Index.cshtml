@@ -5,11 +5,12 @@
 }
 
 <h1>Transaktioner</h1>
+<hr class="my-4">
 
 <p>
     <a asp-action="Create">Skapa In- eller utleverans</a>
 </p>
-<table class="table">
+<table class="table table-striped">
     <thead>
         <tr>
             <th>
@@ -46,8 +47,8 @@
             </td>
             <td>
                 @* <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> | *@
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Details" asp-route-id="@item.Id">Detaljer</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Ta bort</a>
             </td>
         </tr>
 }
